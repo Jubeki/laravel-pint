@@ -8,13 +8,6 @@ use Illuminate\Support\Facades\Process;
 class NodeSandbox
 {
     /**
-     * The version of the sandbox.
-     *
-     * @var string
-     */
-    const VERSION = '5';
-
-    /**
      * The path to the sandbox.
      *
      * @var string
@@ -50,7 +43,9 @@ class NodeSandbox
             return;
         }
 
-        if (! File::exists($this->path.'/version') || File::get($this->path.'/version') !== static::VERSION) {
+        $hash = File::hash($this->path.'/package-lock.json');
+
+        if (! File::exists($this->path.'/version') || File::get($this->path.'/version') !== $hash) {
             File::deleteDirectory($this->path.'/node_modules');
             File::delete($this->path.'/package-lock.json');
 
@@ -59,7 +54,7 @@ class NodeSandbox
 
             $this->installNodeDependencies();
 
-            File::put($this->path.'/version', static::VERSION);
+            File::put($this->path.'/version', $hash);
         }
     }
 
